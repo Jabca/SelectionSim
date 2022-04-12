@@ -31,14 +31,20 @@ class Field:
         next_gen_creatures = []
         for y in range(1, self.size_y - 1):
             for x in range(1, self.size_x - 1):
-                if self.filter_function(x, y):
+                if self.filter_function(x, y, self.board):
                     if type(self.board[y][x]) is not int:
                         survived_creatures.append(self.board[y][x])
 
-        children_number = floor(self.creature_number / len(survived_creatures))
+        try:
+            children_number = floor(self.creature_number / len(survived_creatures))
+        except ZeroDivisionError:
+            children_number = 0
+
         for creature in survived_creatures:
             next_gen_creatures.extend(creature.get_children(children_number))
         self.allocate_creatures(next_gen_creatures)
+
+
 
     def allocate_creatures(self, creatures):
         self.clear_board()
@@ -51,7 +57,10 @@ class Field:
             creature.set_cords(n_x, n_y)
 
     def cell_free(self, x, y):
-        return self.board[y][x] == 0
+        try:
+            return self.board[y][x] == 0
+        except IndexError:
+            return False
 
     def cell_populated(self, x, y):
         return self.board[y][x] is not int
